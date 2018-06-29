@@ -1,15 +1,34 @@
 #!/usr/bin/python3
-
+import os
+import urllib.request
 from datetime import datetime
 
-SAVE_DIR = "/home/croise_pe/Documents/nooa"
+# Relative path of the directory which saves all downloading files
+SAVE_DIR = "./NOAA_Files/"
+if not os.path.exists(SAVE_DIR):
+    os.makedirs(SAVE_DIR)
 
+# the GFS fetch configuration: levels & vars
+# each one is an array, each element of an array is mapping to same element in the another array
+# ex: levels[0] is mapping to vars[0], levels[1] is mapping to vars[1] ...
+# THE LENGTH OF THESE TWO ARRAYS MUST BE THE SAME!
 levels = ['10_m_above_ground', '10_m_above_ground', '2_m_above_ground', 'mean_sea_level']
 variables = ['UGRD', 'VGRD', 'TMP', 'PRMSL']
 
 now = datetime.now()
 date = now.strftime("%Y%m%d")
 time = now.strftime("%H")
+last_scan = int(time)
+
+while last_scan % 6 != 0:
+    last_scan -= 1
+
+# If the last simulation is not available yet, uncomment the following line :
+#last_scan = last_scan - 6
+
+str_scan = str(last_scan)
+str_scan = str_scan.zfill(2)
+
 
 i = 0
 
@@ -19,6 +38,9 @@ while i < len(levels):
         after_hour = str(forecast_hour).zfill(3)
         file_date = date + after_hour
         file_name = "".join(["gfs-", file_date, "-", levels[i], "-", variables[i]])
-        print(file_name)
-        forecast_hour += 3
+        url = "".join(["http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p25.pl?file=gfs.t", str_scan, "z.pgrb2.0p25.f", after_hour, "&lev_", levels[i], "=on&var_", variables[i], "=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs.", date, str_scan])
+        print("Downloading", file_name)
+        directory = "".join([SAVE_DIR, file_name])
+        urllib.request.urlretrieve(url, directory)
+        forecast_hour += 1
     i += 1
