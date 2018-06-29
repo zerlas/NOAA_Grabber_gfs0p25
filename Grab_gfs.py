@@ -34,9 +34,7 @@ while i < len(value):
         after_hour = str(forecast_hour).zfill(3)
         file_date = date + after_hour
         file_name = "".join(["gfs-", file_date, "-", value[i][1], "-", value[i][0]])
-        print(value[i][0], value[i][1])
         url = "".join(["http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p25.pl?file=gfs.t", str_scan, "z.pgrb2.0p25.f", after_hour, "&lev_", value[i][1], "=on&var_", value[i][0], "=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs.", date, str_scan])
-        print(url)
         print("Downloading", file_name)
         directory = "".join([SAVE_DIR, file_name])
         urllib.request.urlretrieve(url, directory)
